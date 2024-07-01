@@ -87,7 +87,7 @@ VALUES (@word, @repeats);", DefaultTableName);
   }
 
   private bool Init() {
-    var request = new SqlCommand(CheckTableCommand, _sqlConnection);
+    using var request = new SqlCommand(CheckTableCommand, _sqlConnection);
 
     using (var reader = request.ExecuteReader()) {
 
@@ -100,7 +100,7 @@ VALUES (@word, @repeats);", DefaultTableName);
       }
     }
 
-    var command = _sqlConnection.CreateCommand();
+    using var command = _sqlConnection.CreateCommand();
     command.CommandText = _initCommand;
 
     command.ExecuteNonQuery();
