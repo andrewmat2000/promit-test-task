@@ -26,9 +26,13 @@ foreach (var path in args) {
 
   using var stream = new StreamReader(fileInfo.OpenRead());
 
-  var textParser = new TextParser(stream.ReadToEnd().Replace("\r\n", "\n").Split("\n"));
+  var textParser = new TextParser();
 
-  foreach (var (word, count) in textParser.KeyDictionary) {
+  while (stream.ReadLine() is string line) {
+    textParser.Append(line);
+  }
+
+  foreach (var (word, count) in textParser.WordDictionary) {
     if (count < 4) {
       continue;
     }

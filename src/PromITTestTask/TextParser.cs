@@ -9,24 +9,22 @@ public partial class TextParser {
 
   private readonly Regex _wordCheckRegex = WordCheckRegex();
 
-  public IReadOnlyDictionary<string, int> KeyDictionary { get; }
+  public IReadOnlyDictionary<string, int> WordDictionary => _wordDictionary;
 
-  public TextParser(params string[] lines) {
-    var dictionary = new Dictionary<string, int>();
+  private readonly Dictionary<string, int> _wordDictionary = [];
 
+  public void Append(params string[] lines) {
     foreach (var line in lines) {
       foreach (var word in line.Split(" ", StringSplitOptions.RemoveEmptyEntries)) {
         if (!_wordCheckRegex.IsMatch(word)) {
           continue;
         }
-        if (dictionary.TryGetValue(word, out int count)) {
-          dictionary[word] = count + 1;
+        if (_wordDictionary.TryGetValue(word, out int count)) {
+          _wordDictionary[word] = count + 1;
           continue;
         }
-        dictionary.Add(word, 1);
+        _wordDictionary.Add(word, 1);
       }
     }
-
-    KeyDictionary = dictionary;
   }
 }
