@@ -1,0 +1,11 @@
+name: "promit-test-task"
+
+services:
+  ms-sql:
+    image: mcr.microsoft.com/mssql/server
+    ports:
+      - 1433:1433
+    environment:
+      - SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express

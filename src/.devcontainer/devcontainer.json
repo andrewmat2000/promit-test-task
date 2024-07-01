@@ -1,0 +1,18 @@
+{
+  "dockerFile": "Dockerfile",
+  "remoteEnv": {
+    "CONNECTION_STRING": "Server=host.docker.internal;Database=master;TrustServerCertificate=True;Pwd=mJTPgWvYW4xJJnnJg40s;User Id=sa;"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "dotnet.defaultSolution": "PromITTestTask.sln"
+      },
+      "extensions": [
+        "patcx.vscode-nuget-gallery",
+        "ms-dotnettools.csharp",
+        "EditorConfig.EditorConfig"
+      ]
+    }
+  }
+}
