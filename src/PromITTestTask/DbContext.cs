@@ -4,15 +4,18 @@ namespace PromITTestTask;
 
 public class DbContext : IDisposable {
   private const string DefaultTableName = "my_test_table";
-  private const string CheckTableCommand = "SELECT * FROM INFORMATION_SCHEMA.TABLES;";
   private readonly SqlConnection _sqlConnection;
+  private readonly string _checkTableCommand = string.Format("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}';", DefaultTableName);
   private readonly string _addValueCommand = string.Format(@"INSERT INTO {0} (word, repeats)
 VALUES (@word, @repeats);", DefaultTableName);
-  private readonly string _initCommand = string.Format(@"CREATE TABLE {0} (
+  private readonly string[] _initCommands = [
+    string.Format(@"CREATE TABLE {0} (
         id INT IDENTITY(1,1) PRIMARY KEY,
-        word varchar(20) NOT NULL,
-        repeats int NOT NULL
-    );", DefaultTableName);
+        word varchar(20) NOT NULL CHECK (LEN(word) >= 3),
+        repeats int NOT NULL CHECK (repeats >= 4)
+    );", DefaultTableName),
+    string.Format("CREATE INDEX word_index ON {0} (word);", DefaultTableName)
+  ];
   private readonly string _getAllCommand = string.Format(@"SELECT DISTINCT word, MAX(repeats)
     FROM {0}
     GROUP BY word
@@ -76,23 +79,21 @@ VALUES (@word, @repeats);", DefaultTableName);
   }
 
   private bool Init() {
-    using var request = new SqlCommand(CheckTableCommand, _sqlConnection);
+    using var request = new SqlCommand(_checkTableCommand, _sqlConnection);
 
-    using (var reader = request.ExecuteReader()) {
+    var exists = request.ExecuteScalar() != null;
 
-      while (reader.Read()) {
-        var tableName = reader["TABLE_NAME"];
-
-        if (tableName is string n && n == DefaultTableName) {
-          return false;
-        }
-      }
+    if (exists) {
+      return false;
     }
 
-    using var command = _sqlConnection.CreateCommand();
-    command.CommandText = _initCommand;
+    foreach (var initCommand in _initCommands) {
+      using var command = _sqlConnection.CreateCommand();
+      command.CommandText = initCommand;
 
-    command.ExecuteNonQuery();
+      command.ExecuteNonQuery();
+    }
+
     return true;
   }
 
